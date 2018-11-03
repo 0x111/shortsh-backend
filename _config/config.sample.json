@@ -1,0 +1,4 @@
+{
+  "mysql_dsn": "user:pass@/db?charset=utf8",
+  "allow_origins": "http://localhost:3000"
+}

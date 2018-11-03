@@ -1,2 +1,1 @@
-# shortsh-frontend
 # shortsh-backend

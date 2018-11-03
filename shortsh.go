@@ -77,7 +77,7 @@ func main() {
 			host = parsedURL.Host
 		}
 
-		if host == "a2.to" || host == "short.sh" {
+		if host == "a2.to" || host == "short.sh" || len(host) == 0 {
 			return c.JSON(http.StatusForbidden, echo.Map{"success": false, "msg": "This does not seem to be a valid URL!"})
 		}
 

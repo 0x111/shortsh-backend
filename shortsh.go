@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/0x111/shortsh-backend/models"
+	"github.com/0x111/shortsh-backend/utils"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
@@ -83,6 +84,12 @@ func main() {
 
 		urlMeta.SetRandomID(3)
 		urlMeta.SetDomain()
+
+		data, exists := utils.UrlExists(engine, urlMeta.Url)
+
+		if exists {
+			return c.JSON(http.StatusOK, echo.Map{"success": true, "url": "https://" + data.ShortDomain + "/" + data.ShortId})
+		}
 
 		_, err = engine.Insert(urlMeta)
 

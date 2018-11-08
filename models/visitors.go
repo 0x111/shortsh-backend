@@ -10,6 +10,6 @@ type Visitors struct {
 	DeletedAt time.Time `xorm:"deleted" json:"-"`
 	UpdatedAt time.Time `xorm:"updated" json:"-"`
 
-	Ip  string `xorm:"url" json:"url,required"`
+	Ip  string `xorm:"ip" json:"url,required"`
 	Url int64  `xorm:"index" json:"url_id"` // relation to the Shortened URL
 }

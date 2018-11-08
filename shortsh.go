@@ -44,7 +44,7 @@ func main() {
 	engine.Logger().SetLevel(core.LOG_DEBUG)
 
 	// Sync models
-	engine.Sync2(new(models.ShortShUrl))
+	engine.Sync2(new(models.Url), new(models.ShortDomains), new(models.Visitors))
 
 	e := echo.New()
 
@@ -60,7 +60,7 @@ func main() {
 	})
 
 	e.POST("/shorten", func(c echo.Context) error {
-		urlMeta := new(models.ShortShUrl)
+		urlMeta := new(models.Url)
 
 		if err := c.Bind(urlMeta); err != nil {
 			return c.JSON(http.StatusInternalServerError, echo.Map{"success": false, "msg": "There was an error while processing your request!"})
@@ -86,9 +86,10 @@ func main() {
 		urlMeta.SetDomain()
 
 		data, exists := utils.UrlExists(engine, urlMeta.Url)
+		shortDomain := utils.GetShortDomain(engine, urlMeta)
 
-		if exists {
-			return c.JSON(http.StatusOK, echo.Map{"success": true, "url": "https://" + data.ShortDomain + "/" + data.ShortId})
+		if exists && shortDomain != "" {
+			return c.JSON(http.StatusOK, echo.Map{"success": true, "url": "https://" + shortDomain + "/" + data.ShortId})
 		}
 
 		_, err = engine.Insert(urlMeta)
@@ -97,7 +98,7 @@ func main() {
 			return c.JSON(http.StatusInternalServerError, echo.Map{"success": false, "msg": "There was an error while communicating with the database!"})
 		}
 
-		return c.JSON(http.StatusOK, echo.Map{"success": true, "url": "https://" + urlMeta.ShortDomain + "/" + urlMeta.ShortId})
+		return c.JSON(http.StatusOK, echo.Map{"success": true, "url": "https://" + shortDomain + "/" + urlMeta.ShortId})
 	})
 
 	e.Logger.Fatal(e.Start(":1323"))

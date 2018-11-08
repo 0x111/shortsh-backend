@@ -5,8 +5,8 @@ import (
 	"github.com/go-xorm/xorm"
 )
 
-func UrlExists(engine *xorm.Engine, url string) (shortshurl *models.ShortShUrl, exists bool) {
-	var urlMeta = &models.ShortShUrl{Url: url}
+func UrlExists(engine *xorm.Engine, url string) (shortshurl *models.Url, exists bool) {
+	var urlMeta = &models.Url{Url: url}
 	has, err := engine.Get(urlMeta)
 
 	if !has || err != nil {
@@ -14,4 +14,15 @@ func UrlExists(engine *xorm.Engine, url string) (shortshurl *models.ShortShUrl, 
 	}
 
 	return urlMeta, true
+}
+
+func GetShortDomain(engine *xorm.Engine, urlMeta *models.Url) string {
+	shortDomain := models.ShortDomains{Id: urlMeta.ShortDomain}
+	has, err := engine.Get(&shortDomain)
+
+	if !has || err != nil {
+		return ""
+	}
+
+	return shortDomain.ShortDomain
 }

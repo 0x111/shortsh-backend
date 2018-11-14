@@ -61,6 +61,7 @@ func main() {
 
 	e.POST("/shorten", func(c echo.Context) error {
 		urlMeta := new(models.Url)
+		var protocol string // protocol of the short domain
 
 		if err := c.Bind(urlMeta); err != nil {
 			return c.JSON(http.StatusInternalServerError, echo.Map{"success": false, "msg": "There was an error while processing your request!"})
@@ -88,8 +89,18 @@ func main() {
 		data, exists := utils.UrlExists(engine, urlMeta.Url)
 		shortDomain := utils.GetShortDomain(engine, urlMeta)
 
-		if exists && shortDomain != "" {
-			return c.JSON(http.StatusOK, echo.Map{"success": true, "url": "https://" + shortDomain + "/" + data.ShortId})
+		if shortDomain == nil {
+			return c.JSON(http.StatusInternalServerError, echo.Map{"success": false, "msg": "There was an error while communicating with the database!"})
+		}
+
+		if shortDomain.Secure {
+			protocol = "https"
+		} else {
+			protocol = "http"
+		}
+
+		if exists {
+			return c.JSON(http.StatusOK, echo.Map{"success": true, "url": protocol + "://" + shortDomain.ShortDomain + "/" + data.ShortId})
 		}
 
 		_, err = engine.Insert(urlMeta)
@@ -98,7 +109,7 @@ func main() {
 			return c.JSON(http.StatusInternalServerError, echo.Map{"success": false, "msg": "There was an error while communicating with the database!"})
 		}
 
-		return c.JSON(http.StatusOK, echo.Map{"success": true, "url": "https://" + shortDomain + "/" + urlMeta.ShortId})
+		return c.JSON(http.StatusOK, echo.Map{"success": true, "url": protocol + "://" + shortDomain.ShortDomain + "/" + urlMeta.ShortId})
 	})
 
 	e.Logger.Fatal(e.Start(":1323"))

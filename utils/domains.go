@@ -16,13 +16,13 @@ func UrlExists(engine *xorm.Engine, url string) (shortshurl *models.Url, exists 
 	return urlMeta, true
 }
 
-func GetShortDomain(engine *xorm.Engine, urlMeta *models.Url) string {
+func GetShortDomain(engine *xorm.Engine, urlMeta *models.Url) *models.ShortDomains {
 	shortDomain := models.ShortDomains{Id: urlMeta.ShortDomain}
 	has, err := engine.Get(&shortDomain)
 
 	if !has || err != nil {
-		return ""
+		return nil
 	}
 
-	return shortDomain.ShortDomain
+	return &shortDomain
 }

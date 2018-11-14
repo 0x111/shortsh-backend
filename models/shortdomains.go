@@ -9,5 +9,6 @@ type ShortDomains struct {
 	UpdatedAt time.Time `xorm:"updated" json:"-"`
 
 	ShortDomain string `xorm:"short_domain" json:"short_domain"`
+	Secure      bool   `xorm:"secure" json:"secure"` // http or https
 	//Url   int64  `xorm:"index" json:"url_id"` // relation to the Shortened URL
 }

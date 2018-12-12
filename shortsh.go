@@ -112,5 +112,62 @@ func main() {
 		return c.JSON(http.StatusOK, echo.Map{"success": true, "url": protocol + "://" + shortDomain.ShortDomain + "/" + urlMeta.ShortId})
 	})
 
+	e.GET("/url/:shortID/stats", func(c echo.Context) error {
+		shortID := c.Param("shortID")
+
+		var urlMeta = models.Url{ShortId: shortID}
+		has, err := engine.Get(&urlMeta)
+		fmt.Println(urlMeta)
+
+		if !has || err != nil {
+			return c.JSON(http.StatusNotFound, echo.Map{"success": false})
+		}
+
+		stats2 := models.UrlStatRet{}
+		rows, err := engine.SQL("SELECT url.id,url.created_at,url.url,short_domains.short_domain,short_domains.secure,COUNT(visitors.id) as count FROM url LEFT JOIN visitors ON url.id=visitors.url LEFT JOIN short_domains ON url.short_domain=short_domains.id WHERE short_id=? LIMIT 1;", shortID).Rows(stats2)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, echo.Map{"success": false, "error": "Internal Server Error!"})
+		}
+
+		defer rows.Close()
+		for rows.Next() {
+			err = rows.Scan(&stats2)
+
+			if err != nil {
+				fmt.Println("Error", err)
+			}
+		}
+
+		// if secure true
+		if stats2.Secure == 1 {
+			stats2.ShortDomain = "https://" + stats2.ShortDomain
+		} else {
+			stats2.ShortDomain = "http://" + stats2.ShortDomain
+		}
+
+		// stats per day
+		singleDay := models.UrlStatDaily{}
+		var daily []models.UrlStatDaily
+		rows2, err := engine.SQL("SELECT DATE_FORMAT(visitors.created_at, \"%Y-%m-%d\") as day,COUNT(visitors.id) as clicks FROM url LEFT JOIN visitors ON url.id=visitors.url LEFT JOIN short_domains ON url.short_domain=short_domains.id WHERE short_id=? GROUP BY DAY(visitors.created_at);", shortID).Rows(singleDay)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, echo.Map{"success": false, "error": "Internal Server Error!"})
+		}
+
+		defer rows2.Close()
+		for rows2.Next() {
+			err = rows2.Scan(&singleDay)
+			fmt.Println(singleDay)
+			if err == nil {
+				daily = append(daily, singleDay)
+			}
+		}
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, echo.Map{"success": false, "msg": "There was a problem while communicating with the database!"})
+		}
+
+		return c.JSON(http.StatusOK, echo.Map{"success": true, "stats": stats2, "daily_stats": daily})
+	})
+
 	e.Logger.Fatal(e.Start(":1323"))
 }

@@ -1,4 +1,4 @@
-module github.com/0x111/shortsh-backend
+module github.com/short-sh/shortsh-backend
 
 require (
 	cloud.google.com/go v0.36.0 // indirect

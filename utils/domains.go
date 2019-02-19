@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"github.com/0x111/shortsh-backend/models"
 	"github.com/go-xorm/xorm"
+	"github.com/short-sh/shortsh-backend/models"
 )
 
 func UrlExists(engine *xorm.Engine, url string) (shortshurl *models.Url, exists bool) {

@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/0x111/shortsh-backend/models"
-	"github.com/0x111/shortsh-backend/utils"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/short-sh/shortsh-backend/models"
+	"github.com/short-sh/shortsh-backend/utils"
 	"github.com/spf13/viper"
 	"log"
 	"net"

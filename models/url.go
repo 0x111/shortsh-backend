@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/0x111/shortsh-backend/randomizer"
+	"github.com/short-sh/shortsh-backend/randomizer"
 	"time"
 )
 
